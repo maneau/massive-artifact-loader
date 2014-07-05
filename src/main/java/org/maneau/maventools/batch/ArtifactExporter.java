@@ -1,5 +1,6 @@
 package org.maneau.maventools.batch;
 
+import org.maneau.maventools.utils.ConfigUtils;
 import org.maneau.maventools.utils.FileUtils;
 import org.maneau.maventools.utils.ResolveArtifact;
 import org.slf4j.Logger;
@@ -47,6 +48,8 @@ public class ArtifactExporter {
     }
 
     public static void main(String[] args) {
+        ConfigUtils.init();
+
         LOGGER.info("Staring");
         if (args.length == 0) {
             usage();

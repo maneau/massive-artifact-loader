@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class FileUtils {
     private static Logger LOGGER = LoggerFactory.getLogger(ResolveArtifact.class);
-    private static final String FILENAME = "local_repo.list";
+    private static final String FILENAME = ConfigUtils.getProperty("exported.artifacts.file");
 
     public static void saveExportedListToFile(Set<String> artifacts) {
 

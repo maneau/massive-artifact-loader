@@ -1,5 +1,7 @@
 package org.maneau.maventools.batch;
 
+import org.maneau.maventools.utils.ConfigUtils;
+import org.maneau.maventools.utils.DeployArtifact;
 import org.maneau.maventools.utils.FileUtils;
 import org.maneau.maventools.utils.ResolveArtifact;
 import org.slf4j.Logger;
@@ -47,6 +49,8 @@ public class ArtifactImporter {
     }
 
     public static void main(String[] args) {
+        ConfigUtils.init();
+
         LOGGER.info("Staring");
         if (args.length == 0) {
             usage();
@@ -71,10 +75,10 @@ public class ArtifactImporter {
         }
 
         //TODO Importer les artifacts
-        /*
-        ResolveArtifact resolver = new ResolveArtifact();
+        DeployArtifact deployer = new DeployArtifact();
+        deployer.deployArtifactByList(artifacts);
 
-        results = resolver.getFoundedArtifacts();
+        /*results = resolver.getFoundedArtifacts();
         FileUtils.saveExportedListToFile(results);
         print(resolver.getResults());
         */
