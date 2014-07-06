@@ -26,14 +26,6 @@ public class Repositories {
             RepositoryPolicy.UPDATE_POLICY_DAILY
     );
 
-    public static final RemoteRepository MAVEN_ENTERPRISE = create(
-            ConfigUtils.getProperty("enterprise.repository.id"),
-            ConfigUtils.getProperty("enterprise.repository.url"),
-            null,
-            RepositoryPolicy.UPDATE_POLICY_DAILY
-    );
-
     public static final List<RemoteRepository> STANDARD = Arrays.asList(MAVEN_CENTRAL);
-    public static final List<RemoteRepository> ENTERPRISE = Arrays.asList(MAVEN_ENTERPRISE);
 
 }

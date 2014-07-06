@@ -3,7 +3,6 @@ package org.maneau.maventools.batch;
 import org.maneau.maventools.utils.ConfigUtils;
 import org.maneau.maventools.utils.DeployArtifact;
 import org.maneau.maventools.utils.FileUtils;
-import org.maneau.maventools.utils.ResolveArtifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +64,7 @@ public class ArtifactImporter {
             if ("-f".equalsIgnoreCase(arg) || "--file".equalsIgnoreCase(arg)) {
                 if(i<args.length-1) {
                     artifacts.addAll(FileUtils.loadExportedListFromFile(args[i + 1]));
+                    i++;
                 } else {
                     print("Missing fileName after -f ");
                     usage();
@@ -74,13 +74,11 @@ public class ArtifactImporter {
             }
         }
 
-        //TODO Importer les artifacts
         DeployArtifact deployer = new DeployArtifact();
         deployer.deployArtifactByList(artifacts);
 
-        /*results = resolver.getFoundedArtifacts();
+        results = deployer.getDeployedArtifacts();
         FileUtils.saveExportedListToFile(results);
-        print(resolver.getResults());
-        */
+        print(deployer.getSummaryResults());
     }
 }

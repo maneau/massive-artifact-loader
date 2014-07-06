@@ -1,5 +1,6 @@
 package org.maneau.maventools.utils;
 
+import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositorySystem;
@@ -32,15 +33,13 @@ public class DeployArtifact {
 
     boolean isManager = Boolean.valueOf(ConfigUtils.getProperty("repository.isManager"));
 
+    private Set<String> failedArtifacts = new HashSet<String>();
+
+    private Set<String> deployedArtifacts = new HashSet<String>();
+
     public Set<String> getDeployedArtifacts() {
         return deployedArtifacts;
     }
-
-    public void setDeployedArtifacts(Set<String> deployedArtifacts) {
-        this.deployedArtifacts = deployedArtifacts;
-    }
-
-    private Set<String> deployedArtifacts = new HashSet<String>();
 
     public DeployArtifact() {
         setRepositorySystem(Booter.newRepositorySystem());
@@ -85,26 +84,22 @@ public class DeployArtifact {
         return sb.toString();
     }
 
-    public void deploy(Artifact artifact, Artifact pom) throws DeploymentException {
+    public void deploy(Artifact... artifacts) throws DeploymentException {
         RemoteRepository repoObj = new RemoteRepository(id, type, url);
         repoObj.setRepositoryManager(isManager);
-        repoObj.setAuthentication(new Authentication(user, password));
+
+        if (user != null && !"".equals(user)) {
+            LOGGER.debug("Settings authentication : for [" + user + "/"
+                    + StringUtils.repeat("*", password.length()) + "]");
+            repoObj.setAuthentication(new Authentication(user, password));
+        }
 
         DeployRequest deployRequest = new DeployRequest();
-        deployRequest.addArtifact(artifact);
-        deployRequest.addArtifact(pom);
-        deployRequest.setRepository(repoObj);
 
-        repositorySystem.deploy(getRepositorySystemSession(), deployRequest);
-    }
+        for (Artifact artifact : artifacts) {
+            deployRequest.addArtifact(artifact);
+        }
 
-    public void deploy(Artifact artifact) throws DeploymentException {
-        RemoteRepository repoObj = new RemoteRepository(id, type, url);
-        repoObj.setRepositoryManager(isManager);
-        //repoObj.setAuthentication(new Authentication(user, password));
-
-        DeployRequest deployRequest = new DeployRequest();
-        deployRequest.addArtifact(artifact);
         deployRequest.setRepository(repoObj);
 
         repositorySystem.deploy(getRepositorySystemSession(), deployRequest);
@@ -116,18 +111,38 @@ public class DeployArtifact {
         for (String key : keys) {
             try {
                 Artifact artifact = new DefaultArtifact(key);
-
                 String filePath = localPath + File.separator + generatePathForArtifact(artifact);
                 File file = new File(filePath);
                 if (!file.exists()) {
                     LOGGER.error("Artifact file not founded = " + filePath);
                 } else {
-                    artifact.setFile(file);
-                    System.out.println(artifact.getArtifactId());
-                    deploy(artifact);
+                    //This method's not Working : artifact.setFile(file);
+                    //( groupId, artifactId, classifier, extension, version, properties, file);
+                    artifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(),
+                            artifact.getClassifier(), artifact.getExtension(), artifact.getVersion(),
+                            null, file);
+
+                    if (artifact.getFile() == null) {
+                        LOGGER.error(artifact.getArtifactId() + " no file attached");
+                    } else {
+                        LOGGER.debug(artifact.getArtifactId() + " file : " + artifact.getFile().getPath());
+                        deploy(artifact);
+                        deployedArtifacts.add(getKey(artifact));
+                    }
                 }
             } catch (DeploymentException e) {
-                LOGGER.error("Error while deploying : " + key, e);
+                if (e.getMessage().contains("Return code is: 400")) {
+                    failedArtifacts.add(key + " (Already exists '400')");
+                } else {
+                    LOGGER.error("Error while deploying : " + key, e);
+                    int beginIndex = e.getMessage().indexOf("Return code is: ");
+                    if (beginIndex > 0) {
+                        String code = e.getMessage().substring(beginIndex);
+                        failedArtifacts.add(key + " (" + code + ")");
+                    } else {
+                        failedArtifacts.add(key);
+                    }
+                }
             }
         }
     }
@@ -148,6 +163,24 @@ public class DeployArtifact {
         sbPath.append(sbName);
 
         return sbPath.toString();
+    }
+
+    public String getSummaryResults() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("List of successfully deployed artifacts (" + deployedArtifacts.size() + ") :\n");
+        for (String artifact : deployedArtifacts) {
+            sb.append("\t+ ").append(artifact).append("\tOK\n");
+        }
+
+        sb.append("\nList of failure deployed artifacts (" + failedArtifacts.size() + ") :\n");
+        for (String artifact : failedArtifacts) {
+            sb.append("\t+ ").append(artifact).append("\tFAILED\n");
+        }
+        return sb.toString();
+    }
+
+    public Set<String> getFailedArtifacts() {
+        return failedArtifacts;
     }
 
 }
