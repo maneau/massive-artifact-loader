@@ -8,6 +8,7 @@ import java.util.List;
 
 /**
  * Created by maneau on 05/07/2014.
+ * Class for generating Repositories
  */
 public class Repositories {
     public static RemoteRepository create(String id, String url, String snapshotUpdates, String releaseUpdates) {
@@ -21,7 +22,7 @@ public class Repositories {
 
     public static final RemoteRepository MAVEN_CENTRAL = create(
             "central",
-            "http://repo1.maven.org/maven2/",
+            ConfigUtils.getProperty("central.repository.url"),
             null,
             RepositoryPolicy.UPDATE_POLICY_DAILY
     );

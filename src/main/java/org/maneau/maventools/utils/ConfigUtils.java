@@ -9,6 +9,7 @@ import java.util.Properties;
 
 /**
  * Created by maneau on 05/07/2014.
+ * Class for getting properties
  */
 public class ConfigUtils {
     private static Logger LOGGER = LoggerFactory.getLogger(DeployArtifact.class);
@@ -26,7 +27,6 @@ public class ConfigUtils {
         } catch (IOException e) {
             LOGGER.error("Error while loading config.properties", e);
         }
-
         LOGGER.debug("Number of properties loaded : " + properties.size());
     }
 }

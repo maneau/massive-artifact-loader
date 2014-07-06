@@ -21,6 +21,7 @@ import java.util.Set;
 
 /**
  * Created by maneau on 05/07/2014.
+ * Class providing feature for downloading artifacts
  */
 public class ResolveArtifact {
     private static Logger LOGGER = LoggerFactory.getLogger(ResolveArtifact.class);
@@ -32,10 +33,6 @@ public class ResolveArtifact {
 
     public Set<String> getFoundedArtifacts() {
         return foundedArtifacts;
-    }
-
-    public void setFoundedArtifacts(Set<String> foundedArtifacts) {
-        this.foundedArtifacts = foundedArtifacts;
     }
 
     private Set<String> foundedArtifacts = new HashSet<String>();
@@ -53,15 +50,7 @@ public class ResolveArtifact {
         }
     }
 
-    public ArtifactResult resolveArtifact(String groupId, String artifactId, String version, boolean withDependencies) {
-        return resolveArtifactWithArtifact(new DefaultArtifact(groupId, artifactId, null, version), withDependencies);
-    }
-
-    public ArtifactResult resolveArtifactWithCoordinates(String groupId, String artifactId, String version, boolean withDependencies) {
-        return resolveArtifactWithArtifact(new DefaultArtifact(groupId + ":" + artifactId + ":" + version), withDependencies);
-    }
-
-    public ArtifactResult resolveArtifactWithkey(String key, boolean withDependencies) {
+    public ArtifactResult resolveArtifactWithKey(String key, boolean withDependencies) {
         return resolveArtifactWithArtifact(new DefaultArtifact(key), withDependencies);
     }
 
@@ -73,9 +62,7 @@ public class ResolveArtifact {
     }
 
     public Artifact getPomArtifact(Artifact artifact) {
-        Artifact pomArtifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "pom", artifact.getVersion());
-
-        return pomArtifact;
+        return new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "pom", artifact.getVersion());
     }
 
     private String getKey(Artifact a) {
@@ -93,10 +80,10 @@ public class ResolveArtifact {
     public ArtifactResult resolveArtifactWithArtifact(Artifact artifact, boolean withDependencies) {
         String key = getKey(artifact);
         if (foundedArtifacts.contains(key)) {
-            LOGGER.info("Artifact déjà chargé (" + key + ") : ");
+            LOGGER.debug("Artifact already downloaded (" + key + ") : ");
             return null;
         } else {
-            LOGGER.info("Chargement de : " + key);
+            LOGGER.debug("Downloading artifact : (" + key + ")");
         }
 
         getArtifactRequest().setArtifact(artifact);
@@ -109,12 +96,12 @@ public class ResolveArtifact {
             LOGGER.error("ArtifactResolutionException:", e);
         }
 
-        //On récupère le pom
+        //Don't forget to get the pom
         if (!artifact.getExtension().equals("pom")) {
             artifactResult = resolvePomArtifact(artifact, withDependencies);
         } else {
             if (withDependencies) {
-                //si c'est un pom on récupère les dépendances
+                //Getting dependencies
                 for (Artifact subArtifact : resolveDependencies(artifact)) {
                     resolveArtifactWithArtifact(subArtifact, withDependencies);
                 }
@@ -135,17 +122,16 @@ public class ResolveArtifact {
             DependencyResult dependencyResult = repositorySystem.resolveDependencies(getRepositorySystemSession(), new DependencyRequest(node, null));
 
             for (ArtifactResult artifactResult : dependencyResult.getArtifactResults()) {
-                LOGGER.debug("Dépendence trouvées :" + artifactResult.getArtifact().getArtifactId());
+                LOGGER.debug("Dependencies founded :" + artifactResult.getArtifact().getArtifactId());
                 artifacts.add(artifactResult.getArtifact());
             }
         } catch (DependencyCollectionException e) {
-            LOGGER.error("resolveDependencies", e);
+            LOGGER.error("Error while resolving dependencies", e);
         } catch (DependencyResolutionException e) {
-            LOGGER.error("resolveDependencies", e);
+            LOGGER.error("Error while resolving dependencies", e);
         }
         return artifacts;
     }
-
 
     public void setArtifactRequest(ArtifactRequest artifactRequest) {
         this.artifactRequest = artifactRequest;
@@ -182,9 +168,9 @@ public class ResolveArtifact {
 
     public String getResults() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Liste des artifacts téléchargés (" + foundedArtifacts.size() + ") :\n");
+        sb.append("List of downloaded artifacts (").append(foundedArtifacts.size()).append(") :\n");
         for (String artifact : foundedArtifacts) {
-            sb.append("\t+ " + artifact + "\n");
+            sb.append("\t+ ").append(artifact).append("\n");
         }
         return sb.toString();
     }

@@ -12,19 +12,16 @@ import java.util.Set;
 
 /**
  * Created by maneau on 05/07/2014.
+ * Main Class for exporting or downloading artifact from central repository
  */
 public class ArtifactExporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactExporter.class);
 
     private static Set<String> results;
-    private static boolean isRecursive = false;
+    private static boolean isRecursive;
 
     public static Set<String> getResults() {
         return results;
-    }
-
-    public static void setResults(Set<String> results) {
-        ArtifactExporter.results = results;
     }
 
     public static List<String> getArtifacts() {
@@ -38,9 +35,9 @@ public class ArtifactExporter {
     private static List<String> artifacts;
 
     private static void usage() {
-        print("Usage : ArtifactExporter (-f|--file file) (\"groupId:ArtifactId(:type):version(:classifier)\")");
-        print(" -f|--file : file containing artifacts");
-        print(" \"groupId:ArtifactId(:type):version(:classifier)\" : package can be multiples");
+        print("Usage : ArtifactExporter (-r|--recurse) \"groupId:ArtifactId(:type):version(:classifier)\"");
+        print(" -r|--recurse : recusif");
+        print(" \"groupId:ArtifactId(:type):version(:classifier)\" : package");
     }
 
     private static void print(String txt) {
@@ -54,10 +51,9 @@ public class ArtifactExporter {
         if (args.length == 0) {
             usage();
             return;
-        } else {
-            LOGGER.info("Starting ArtifactDependencies with : " + args);
         }
 
+        isRecursive = false;
         artifacts = new ArrayList<String>();
         for (String arg : args) {
             if ("-r".equalsIgnoreCase(arg) || "--recurse".equalsIgnoreCase(arg)) {
@@ -70,7 +66,7 @@ public class ArtifactExporter {
         ResolveArtifact resolver = new ResolveArtifact();
         for (String artifact : artifacts) {
             print("Searching for artifact : " + artifacts);
-            resolver.resolveArtifactWithkey(artifact, isRecursive);
+            resolver.resolveArtifactWithKey(artifact, isRecursive);
         }
 
         results = resolver.getFoundedArtifacts();

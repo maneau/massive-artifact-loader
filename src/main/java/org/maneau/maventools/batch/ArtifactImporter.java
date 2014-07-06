@@ -12,19 +12,15 @@ import java.util.Set;
 
 /**
  * Created by maneau on 05/07/2014.
+ * Main class for Import Artifact in the enterprise repository
  */
 public class ArtifactImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactImporter.class);
 
     private static Set<String> results;
-    private static boolean isRecursive = false;
 
     public static Set<String> getResults() {
         return results;
-    }
-
-    public static void setResults(Set<String> results) {
-        ArtifactImporter.results = results;
     }
 
     public static List<String> getArtifacts() {
@@ -38,9 +34,10 @@ public class ArtifactImporter {
     private static List<String> artifacts;
 
     private static void usage() {
-        print("Usage : ArtifactImporter (-r|--recurse) \"groupId:ArtifactId(:type):version(:classifier)\"");
-        print(" -e|--recurse : recusif");
-        print(" \"groupId:ArtifactId(:type):version(:classifier)\" : package");
+
+        print("Usage : ArtifactImporter (-f|--file file) (\"groupId:ArtifactId(:type):version(:classifier)\")");
+        print(" -f|--file : file containing artifacts");
+        print(" \"groupId:ArtifactId(:type):version(:classifier)\" : package can be multiples");
     }
 
     private static void print(String txt) {
@@ -54,8 +51,6 @@ public class ArtifactImporter {
         if (args.length == 0) {
             usage();
             return;
-        } else {
-            LOGGER.info("Starting ArtifactDependencies with : " + args);
         }
 
         artifacts = new ArrayList<String>();

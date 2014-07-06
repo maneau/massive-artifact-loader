@@ -19,6 +19,7 @@ import java.util.Set;
 
 /**
  * Created by maneau on 05/07/2014.
+ * This class Provides feature for deploying artifacts
  */
 public class DeployArtifact {
     private static Logger LOGGER = LoggerFactory.getLogger(DeployArtifact.class);
@@ -31,7 +32,7 @@ public class DeployArtifact {
     private String type = ConfigUtils.getProperty("enterprise.repository.type");
     private String url = ConfigUtils.getProperty("enterprise.repository.url");
 
-    boolean isManager = Boolean.valueOf(ConfigUtils.getProperty("repository.isManager"));
+    boolean isManager = Boolean.valueOf(ConfigUtils.getProperty("enterprise.repository.isManager"));
 
     private Set<String> failedArtifacts = new HashSet<String>();
 
@@ -77,9 +78,9 @@ public class DeployArtifact {
 
     public String getDeployed() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Number of deployed artifact (" + deployedArtifacts.size() + ") :\n");
+        sb.append("Number of deployed artifact (").append(deployedArtifacts.size()).append(") :\n");
         for (String artifact : deployedArtifacts) {
-            sb.append("\t+ " + artifact + "\n");
+            sb.append("\t+ ").append(artifact).append("\n");
         }
         return sb.toString();
     }
@@ -167,20 +168,16 @@ public class DeployArtifact {
 
     public String getSummaryResults() {
         StringBuilder sb = new StringBuilder();
-        sb.append("List of successfully deployed artifacts (" + deployedArtifacts.size() + ") :\n");
+        sb.append("List of successfully deployed artifacts (").append(deployedArtifacts.size()).append(") :\n");
         for (String artifact : deployedArtifacts) {
             sb.append("\t+ ").append(artifact).append("\tOK\n");
         }
 
-        sb.append("\nList of failure deployed artifacts (" + failedArtifacts.size() + ") :\n");
+        sb.append("\nList of failure deployed artifacts (").append(failedArtifacts.size()).append(") :\n");
         for (String artifact : failedArtifacts) {
             sb.append("\t+ ").append(artifact).append("\tFAILED\n");
         }
         return sb.toString();
-    }
-
-    public Set<String> getFailedArtifacts() {
-        return failedArtifacts;
     }
 
 }
