@@ -2,6 +2,7 @@ package org.maneau.maventools.utils;
 
 import org.apache.maven.wagon.Wagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpWagon;
+import org.apache.maven.wagon.providers.http.LightweightHttpWagonAuthenticator;
 import org.apache.maven.wagon.providers.http.LightweightHttpsWagon;
 import org.sonatype.aether.connector.wagon.WagonProvider;
 
@@ -12,12 +13,16 @@ import org.sonatype.aether.connector.wagon.WagonProvider;
 public class ManualWagonProvider implements WagonProvider {
 
     public Wagon lookup(String roleHint) throws Exception {
+        LightweightHttpWagon wagon = null;
         if ("http".equals(roleHint)) {
-            return new LightweightHttpWagon();
+            wagon = new LightweightHttpWagon();
         } else if ("https".equals(roleHint)) {
-            return new LightweightHttpsWagon();
+            wagon = new LightweightHttpsWagon();
+        } else {
+            return null;
         }
-        return null;
+        wagon.setAuthenticator(new LightweightHttpWagonAuthenticator());
+        return wagon;
     }
 
     public void release(Wagon wagon) {
