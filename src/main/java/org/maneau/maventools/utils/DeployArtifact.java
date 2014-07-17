@@ -22,21 +22,21 @@ import java.util.Set;
  * This class Provides feature for deploying artifacts
  */
 public class DeployArtifact {
-    private static Logger LOGGER = LoggerFactory.getLogger(DeployArtifact.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeployArtifact.class);
 
     private RepositorySystemSession repositorySystemSession;
     private RepositorySystem repositorySystem;
-    private String user = ConfigUtils.getProperty("enterprise.repository.user");
-    private String password = ConfigUtils.getProperty("enterprise.repository.password");
-    private String id = ConfigUtils.getProperty("enterprise.repository.id");
-    private String type = ConfigUtils.getProperty("enterprise.repository.type");
-    private String url = ConfigUtils.getProperty("enterprise.repository.url");
+    private final String user = ConfigUtils.getProperty("enterprise.repository.user");
+    private final String password = ConfigUtils.getProperty("enterprise.repository.password");
+    private final String id = ConfigUtils.getProperty("enterprise.repository.id");
+    private final String type = ConfigUtils.getProperty("enterprise.repository.type");
+    private final String url = ConfigUtils.getProperty("enterprise.repository.url");
 
-    boolean isManager = Boolean.valueOf(ConfigUtils.getProperty("enterprise.repository.isManager"));
+    private final boolean isManager = Boolean.valueOf(ConfigUtils.getProperty("enterprise.repository.isManager"));
 
-    private Set<String> failedArtifacts = new HashSet<String>();
+    private final Set<String> failedArtifacts = new HashSet<String>();
 
-    private Set<String> deployedArtifacts = new HashSet<String>();
+    private final Set<String> deployedArtifacts = new HashSet<String>();
 
     public Set<String> getDeployedArtifacts() {
         return deployedArtifacts;
@@ -60,19 +60,19 @@ public class DeployArtifact {
         return sb.toString();
     }
 
-    public void setRepositorySystem(RepositorySystem repositorySystem) {
+    void setRepositorySystem(RepositorySystem repositorySystem) {
         this.repositorySystem = repositorySystem;
     }
 
-    public RepositorySystem getRepositorySystem() {
+    RepositorySystem getRepositorySystem() {
         return repositorySystem;
     }
 
-    public void setRepositorySystemSession(RepositorySystemSession repositorySystemSession) {
+    void setRepositorySystemSession(RepositorySystemSession repositorySystemSession) {
         this.repositorySystemSession = repositorySystemSession;
     }
 
-    public RepositorySystemSession getRepositorySystemSession() {
+    RepositorySystemSession getRepositorySystemSession() {
         return repositorySystemSession;
     }
 
@@ -85,7 +85,7 @@ public class DeployArtifact {
         return sb.toString();
     }
 
-    public void deploy(Artifact... artifacts) throws DeploymentException {
+    void deploy(Artifact... artifacts) throws DeploymentException {
         RemoteRepository repoObj = new RemoteRepository(id, type, url);
         repoObj.setRepositoryManager(isManager);
 
@@ -148,7 +148,7 @@ public class DeployArtifact {
         }
     }
 
-    public String generatePathForArtifact(Artifact artifact) {
+    String generatePathForArtifact(Artifact artifact) {
         StringBuilder sbName = new StringBuilder();
         sbName.append(artifact.getArtifactId()).append("-");
         sbName.append(artifact.getVersion());
@@ -157,7 +157,7 @@ public class DeployArtifact {
         }
         sbName.append(".").append(artifact.getExtension());
 
-        StringBuilder sbPath = new StringBuilder();
+        @SuppressWarnings("StringBufferReplaceableByString") StringBuilder sbPath = new StringBuilder();
         sbPath.append(artifact.getGroupId().replace(".", File.separator)).append(File.separator);
         sbPath.append(artifact.getArtifactId()).append(File.separator);
         sbPath.append(artifact.getVersion()).append(File.separator);

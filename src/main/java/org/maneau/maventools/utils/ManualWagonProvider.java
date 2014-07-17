@@ -10,10 +10,10 @@ import org.sonatype.aether.connector.wagon.WagonProvider;
  * Created by maneau on 05/07/2014.
  * A simplistic provider for wagon instances when no Plexus-compatible IoC container is used.
  */
-public class ManualWagonProvider implements WagonProvider {
+class ManualWagonProvider implements WagonProvider {
 
     public Wagon lookup(String roleHint) throws Exception {
-        LightweightHttpWagon wagon = null;
+        LightweightHttpWagon wagon;
         if ("http".equals(roleHint)) {
             wagon = new LightweightHttpWagon();
         } else if ("https".equals(roleHint)) {

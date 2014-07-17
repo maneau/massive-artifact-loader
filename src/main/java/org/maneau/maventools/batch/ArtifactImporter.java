@@ -14,7 +14,7 @@ import java.util.Set;
  * Created by maneau on 05/07/2014.
  * Main class for Import Artifact in the enterprise repository
  */
-public class ArtifactImporter {
+class ArtifactImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactImporter.class);
 
     private static Set<String> results;

@@ -12,7 +12,7 @@ import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
  * Created by maneau on 05/07/2014.
  * Declaring Services in the RepositorySystem manually
  */
-public class ManualRepositorySystemFactory {
+class ManualRepositorySystemFactory {
 
     public static RepositorySystem newRepositorySystem() {
 

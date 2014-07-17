@@ -14,11 +14,10 @@ import java.util.Set;
  * Created by maneau on 05/07/2014.
  * Main Class for exporting or downloading artifact from central repository
  */
-public class ArtifactExporter {
+class ArtifactExporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactExporter.class);
 
     private static Set<String> results;
-    private static boolean isRecursive;
 
     public static Set<String> getResults() {
         return results;
@@ -35,8 +34,8 @@ public class ArtifactExporter {
     private static List<String> artifacts;
 
     private static void usage() {
-        print("Usage : ArtifactExporter (-r|--recurse) \"groupId:ArtifactId(:type):version(:classifier)\"");
-        print(" -r|--recurse : recusif");
+        print("Usage : ArtifactExporter (-r|--recursive) \"groupId:ArtifactId(:type):version(:classifier)\"");
+        print(" -r|--recursive : recursive mode on dependencies");
         print(" \"groupId:ArtifactId(:type):version(:classifier)\" : package");
     }
 
@@ -53,10 +52,10 @@ public class ArtifactExporter {
             return;
         }
 
-        isRecursive = false;
+        boolean isRecursive = false;
         artifacts = new ArrayList<String>();
         for (String arg : args) {
-            if ("-r".equalsIgnoreCase(arg) || "--recurse".equalsIgnoreCase(arg)) {
+            if ("-r".equalsIgnoreCase(arg) || "--recursive".equalsIgnoreCase(arg)) {
                 isRecursive = true;
             } else {
                 artifacts.add(arg);

@@ -12,9 +12,9 @@ import java.util.Properties;
  * Class for getting properties
  */
 public class ConfigUtils {
-    private static Logger LOGGER = LoggerFactory.getLogger(DeployArtifact.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeployArtifact.class);
 
-    private static Properties properties = new Properties();
+    private static final Properties properties = new Properties();
 
     public static String getProperty(String name) {
         return properties.getProperty(name);

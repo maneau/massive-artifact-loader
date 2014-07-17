@@ -24,7 +24,7 @@ import java.util.Set;
  * Class providing feature for downloading artifacts
  */
 public class ResolveArtifact {
-    private static Logger LOGGER = LoggerFactory.getLogger(ResolveArtifact.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResolveArtifact.class);
 
     private RepositorySystemSession repositorySystemSession;
     private RepositorySystem repositorySystem;
@@ -35,7 +35,7 @@ public class ResolveArtifact {
         return foundedArtifacts;
     }
 
-    private Set<String> foundedArtifacts = new HashSet<String>();
+    private final Set<String> foundedArtifacts = new HashSet<String>();
 
     public ResolveArtifact() {
         setRepositorySystem(Booter.newRepositorySystem());
@@ -54,14 +54,14 @@ public class ResolveArtifact {
         return resolveArtifactWithArtifact(new DefaultArtifact(key), withDependencies);
     }
 
-    public ArtifactResult resolvePomArtifact(Artifact artifact, boolean withDependencies) {
+    ArtifactResult resolvePomArtifact(Artifact artifact, boolean withDependencies) {
         if (artifact.getExtension().equals("pom")) {
             return null;
         }
         return resolveArtifactWithArtifact(getPomArtifact(artifact), withDependencies);
     }
 
-    public Artifact getPomArtifact(Artifact artifact) {
+    Artifact getPomArtifact(Artifact artifact) {
         return new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "pom", artifact.getVersion());
     }
 
@@ -77,7 +77,7 @@ public class ResolveArtifact {
         return sb.toString();
     }
 
-    public ArtifactResult resolveArtifactWithArtifact(Artifact artifact, boolean withDependencies) {
+    ArtifactResult resolveArtifactWithArtifact(Artifact artifact, boolean withDependencies) {
         String key = getKey(artifact);
         if (foundedArtifacts.contains(key)) {
             LOGGER.debug("Artifact already downloaded (" + key + ") : ");
@@ -103,6 +103,7 @@ public class ResolveArtifact {
             if (withDependencies) {
                 //Getting dependencies
                 for (Artifact subArtifact : resolveDependencies(artifact)) {
+                    //noinspection ConstantConditions
                     resolveArtifactWithArtifact(subArtifact, withDependencies);
                 }
             }
@@ -110,7 +111,7 @@ public class ResolveArtifact {
         return artifactResult;
     }
 
-    public List<Artifact> resolveDependencies(Artifact artifact) {
+    List<Artifact> resolveDependencies(Artifact artifact) {
         List<Artifact> artifacts = new ArrayList<Artifact>();
         try {
             LOGGER.info("ResolveDependencies recursively");
@@ -133,36 +134,36 @@ public class ResolveArtifact {
         return artifacts;
     }
 
-    public void setArtifactRequest(ArtifactRequest artifactRequest) {
+    void setArtifactRequest(ArtifactRequest artifactRequest) {
         this.artifactRequest = artifactRequest;
     }
 
-    public ArtifactRequest getArtifactRequest() {
+    ArtifactRequest getArtifactRequest() {
         return artifactRequest;
     }
 
-    public void setRepositorySystem(RepositorySystem repositorySystem) {
+    void setRepositorySystem(RepositorySystem repositorySystem) {
         this.repositorySystem = repositorySystem;
     }
 
-    public RepositorySystem getRepositorySystem() {
+    RepositorySystem getRepositorySystem() {
         return repositorySystem;
     }
 
-    public void setRepositorySystemSession(RepositorySystemSession repositorySystemSession) {
+    void setRepositorySystemSession(RepositorySystemSession repositorySystemSession) {
         this.repositorySystemSession = repositorySystemSession;
     }
 
-    public RepositorySystemSession getRepositorySystemSession() {
+    RepositorySystemSession getRepositorySystemSession() {
         return repositorySystemSession;
     }
 
 
-    public void setCollectRequest(CollectRequest collectRequest) {
+    void setCollectRequest(CollectRequest collectRequest) {
         this.collectRequest = collectRequest;
     }
 
-    public CollectRequest getCollectRequest() {
+    CollectRequest getCollectRequest() {
         return collectRequest;
     }
 

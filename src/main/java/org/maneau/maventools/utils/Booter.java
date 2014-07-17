@@ -8,8 +8,9 @@ import org.sonatype.aether.repository.LocalRepository;
 
 /**
  * Created by maneau on 05/07/2014.
+ * This class initiate the Local FileSystem Repository for exporting
  */
-public class Booter {
+class Booter {
 
     public static RepositorySystem newRepositorySystem() {
         return ManualRepositorySystemFactory.newRepositorySystem();

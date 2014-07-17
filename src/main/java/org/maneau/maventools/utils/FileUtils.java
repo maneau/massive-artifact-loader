@@ -10,14 +10,15 @@ import java.util.Set;
 
 /**
  * Created by maneau on 05/07/2014.
+ * This Utility class used for File Access
  */
 public class FileUtils {
-    private static Logger LOGGER = LoggerFactory.getLogger(ResolveArtifact.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResolveArtifact.class);
     private static final String FILENAME = ConfigUtils.getProperty("exported.artifacts.file");
 
     public static void saveExportedListToFile(Set<String> artifacts) {
 
-        FileWriter fileWriter = null;
+        FileWriter fileWriter;
         BufferedWriter bufferedWriter = null;
 
         try {
