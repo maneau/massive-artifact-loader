@@ -8,7 +8,7 @@
 
     <groupId>org.maneau.mavenutils</groupId>
     <artifactId>massive-artifact-loader</artifactId>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
 
     <name>Massive Artifact Loader</name>
     <description>Batch for Export and Import Artifacts Massively</description>
