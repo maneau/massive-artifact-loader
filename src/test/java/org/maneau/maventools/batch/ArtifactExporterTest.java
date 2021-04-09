@@ -29,14 +29,22 @@ public class ArtifactExporterTest extends TestCase {
 
         ArtifactExporter.main(args);
         assertEquals(1, ArtifactExporter.getArtifacts().size());
-        assertEquals(132, ArtifactExporter.getResults().size());
+        assertEquals(137, ArtifactExporter.getResults().size());
     }
 
-    public void testParentRecursiveResolving() throws Exception {
-        String[] args = {"org.apache.maven:maven-model:jar:3.0.1"};
+    public void testParentResolving() throws Exception {
+        String[] args = {"-r", "org.apache.maven:maven-model:jar:3.0.1"};
 
         ArtifactExporter.main(args);
         assertTrue(ArtifactExporter.getResults().contains("org.apache.maven:maven:pom:3.0.1"));
+    }
+
+    public void testParentRecursiveResolving() throws Exception {
+        String[] args = {"-r","org.apache.lucene:lucene-core:pom:8.0.0"};
+
+        ArtifactExporter.main(args);
+        assertTrue(ArtifactExporter.getResults().contains("org.apache.lucene:lucene-parent:pom:8.0.0"));
+        assertTrue(ArtifactExporter.getResults().contains("org.apache.lucene:lucene-solr-grandparent:pom:8.0.0"));
     }
 
 }

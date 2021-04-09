@@ -60,11 +60,40 @@ public class ResolveArtifact {
         return resolveArtifactWithArtifact(new DefaultArtifact(key), withDependencies);
     }
 
-    ArtifactResult resolvePomArtifact(Artifact artifact, boolean withDependencies) {
+    private ArtifactResult resolvePomArtifact(Artifact artifact, boolean withDependencies) {
+        resolveParentArtifact(artifact, withDependencies);
+
         if (artifact.getExtension().equals("pom")) {
             return null;
         }
         return resolveArtifactWithArtifact(getPomArtifact(artifact), withDependencies);
+    }
+
+    private void resolveParentArtifact(Artifact artifact, boolean withDependencies) {
+        if (withDependencies) {
+            String key = getKey(artifact);
+            try {
+                ArtifactRequest artifactPomRequest = new ArtifactRequest();
+                artifactPomRequest.setArtifact(getPomArtifact(artifact));
+
+                ArtifactResult artifactPomResult = getRepositorySystem().resolveArtifact(getRepositorySystemSession(), artifactPomRequest);
+                MavenXpp3Reader reader = new MavenXpp3Reader();
+                Model pomModel = reader.read(new FileReader(artifactPomResult.getArtifact().getFile()));
+                if (pomModel.getParent() != null) {
+                    Artifact parentArtifact = new DefaultArtifact(pomModel.getParent().getGroupId(), pomModel.getParent().getArtifactId(), "pom", pomModel.getParent().getVersion());
+                    String parentKey = getKey(parentArtifact);
+                    foundedArtifacts.add(parentKey);
+                    LOGGER.debug("Parents founded for " + key);
+
+                    //recursive
+                    resolveParentArtifact(parentArtifact, withDependencies);
+                } else {
+                    LOGGER.debug("No parents for " + key);
+                }
+            } catch (Exception e) {
+                LOGGER.error("ArtifactResolutionException:", e);
+            }
+        }
     }
 
     Artifact getPomArtifact(Artifact artifact) {
@@ -98,38 +127,19 @@ public class ResolveArtifact {
         try {
             artifactResult = getRepositorySystem().resolveArtifact(getRepositorySystemSession(), getArtifactRequest());
 
-            ArtifactRequest artifactPomRequest = new ArtifactRequest();
-            artifactPomRequest.setArtifact(getPomArtifact(artifact));
-
-            ArtifactResult artifactPomResult = getRepositorySystem().resolveArtifact(getRepositorySystemSession(), artifactPomRequest);
-            MavenXpp3Reader reader = new MavenXpp3Reader();
-            Model pomModel = reader.read(new FileReader(artifactPomResult.getArtifact().getFile()));
-            if(pomModel.getParent() != null) {
-                Artifact parentArtifact =  new DefaultArtifact(pomModel.getParent().getGroupId(), pomModel.getParent().getArtifactId(), "pom", pomModel.getParent().getVersion());
-                foundedArtifacts.add(getKey(parentArtifact));
-            }
-
             foundedArtifacts.add(getKey(artifact));
         } catch (ArtifactResolutionException e) {
-            LOGGER.error("ArtifactResolutionException:", e);
-        } catch (XmlPullParserException e) {
-            LOGGER.error("ArtifactResolutionException:", e);
-        } catch (FileNotFoundException e) {
-            LOGGER.error("ArtifactResolutionException:", e);
-        } catch (IOException e) {
             LOGGER.error("ArtifactResolutionException:", e);
         }
 
         //Don't forget to get the pom
-        if (!artifact.getExtension().equals("pom")) {
-            artifactResult = resolvePomArtifact(artifact, withDependencies);
-        } else {
-            if (withDependencies) {
-                //Getting dependencies
-                for (Artifact subArtifact : resolveDependencies(artifact)) {
-                    //noinspection ConstantConditions
-                    resolveArtifactWithArtifact(subArtifact, withDependencies);
-                }
+        resolvePomArtifact(artifact, withDependencies);
+
+        if (withDependencies) {
+            //Getting dependencies
+            for (Artifact subArtifact : resolveDependencies(artifact)) {
+                //noinspection ConstantConditions
+                resolveArtifactWithArtifact(subArtifact, withDependencies);
             }
         }
         return artifactResult;
