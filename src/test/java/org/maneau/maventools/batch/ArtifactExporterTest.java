@@ -32,4 +32,11 @@ public class ArtifactExporterTest extends TestCase {
         assertEquals(132, ArtifactExporter.getResults().size());
     }
 
+    public void testParentRecursiveResolving() throws Exception {
+        String[] args = {"org.apache.maven:maven-model:jar:3.0.1"};
+
+        ArtifactExporter.main(args);
+        assertTrue(ArtifactExporter.getResults().contains("org.apache.maven:maven:pom:3.0.1"));
+    }
+
 }

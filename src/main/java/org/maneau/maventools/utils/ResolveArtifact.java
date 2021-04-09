@@ -1,5 +1,8 @@
 package org.maneau.maventools.utils;
 
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositorySystem;
@@ -14,6 +17,9 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.resolution.*;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -91,8 +97,26 @@ public class ResolveArtifact {
         ArtifactResult artifactResult = null;
         try {
             artifactResult = getRepositorySystem().resolveArtifact(getRepositorySystemSession(), getArtifactRequest());
+
+            ArtifactRequest artifactPomRequest = new ArtifactRequest();
+            artifactPomRequest.setArtifact(getPomArtifact(artifact));
+
+            ArtifactResult artifactPomResult = getRepositorySystem().resolveArtifact(getRepositorySystemSession(), artifactPomRequest);
+            MavenXpp3Reader reader = new MavenXpp3Reader();
+            Model pomModel = reader.read(new FileReader(artifactPomResult.getArtifact().getFile()));
+            if(pomModel.getParent() != null) {
+                Artifact parentArtifact =  new DefaultArtifact(pomModel.getParent().getGroupId(), pomModel.getParent().getArtifactId(), "pom", pomModel.getParent().getVersion());
+                foundedArtifacts.add(getKey(parentArtifact));
+            }
+
             foundedArtifacts.add(getKey(artifact));
         } catch (ArtifactResolutionException e) {
+            LOGGER.error("ArtifactResolutionException:", e);
+        } catch (XmlPullParserException e) {
+            LOGGER.error("ArtifactResolutionException:", e);
+        } catch (FileNotFoundException e) {
+            LOGGER.error("ArtifactResolutionException:", e);
+        } catch (IOException e) {
             LOGGER.error("ArtifactResolutionException:", e);
         }
 
