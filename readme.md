@@ -76,4 +76,14 @@ Note there is no recursive mode
 
 Typically you can use the generated file during the ArtifactExporter to import all
 
+### Usage of PomExporter
+
+* You can use by specify the pom.xml in the parameter like :
+
+> org.maneau.maventools.batch.PomExporter **pom.xml** ...
+
+* add _-r_ or _--recurse_ for downloading all dependencies as :
+
+> org.maneau.maventools.batch.PomExporter **-r** pom.xml
+
 By Maneau(c)
